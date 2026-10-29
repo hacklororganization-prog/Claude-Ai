@@ -21,14 +21,9 @@ public class KeeperService extends Service {
         if (Build.VERSION.SDK_INT >= 23) piFlags |= 0x4000000; // FLAG_IMMUTABLE
         PendingIntent pi = PendingIntent.getActivity(this, 0, open, piFlags);
 
-        Notification n = new Notification.Builder(this)
-                .setSmallIcon(getApplicationInfo().icon)
-                .setContentTitle("WhatsApp Lite")
-                .setContentText("يعمل في الخلفية لاستقبال الرسائل")
-                .setPriority(Notification.PRIORITY_MIN)
-                .setOngoing(true)
-                .setContentIntent(pi)
-                .build();
+        Notif.ensureChannel(this, "wl_service", "التشغيل في الخلفية", 1 /*IMPORTANCE_MIN*/);
+        Notification n = Notif.build(this, "wl_service", "WhatsApp Lite",
+                "يعمل في الخلفية لاستقبال الرسائل", true, Notification.PRIORITY_MIN, pi);
 
         startForeground(ID, n);
         return START_STICKY;

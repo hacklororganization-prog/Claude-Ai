@@ -52,7 +52,15 @@ public class MainActivity extends Activity {
     }
 
     private void startKeeper() {
-        try { startService(new Intent(this, KeeperService.class)); } catch (Exception e) {}
+        Intent i = new Intent(this, KeeperService.class);
+        try {
+            // أندرويد 8+ يمنع بدء خدمة عادية من الخلفية؛ نستعمل startForegroundService عبر reflection
+            if (Build.VERSION.SDK_INT >= 26) {
+                Context.class.getMethod("startForegroundService", Intent.class).invoke(this, i);
+            } else {
+                startService(i);
+            }
+        } catch (Exception e) {}
     }
     private void stopKeeper() {
         try { stopService(new Intent(this, KeeperService.class)); } catch (Exception e) {}
@@ -237,15 +245,10 @@ public class MainActivity extends Activity {
                 if (Build.VERSION.SDK_INT >= 23) piFlags |= 0x4000000; // FLAG_IMMUTABLE
                 PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, i, piFlags);
 
-                Notification.Builder nb = new Notification.Builder(MainActivity.this)
-                        .setSmallIcon(getApplicationInfo().icon)
-                        .setContentTitle(title == null ? "WhatsApp Lite" : title)
-                        .setContentText(body)
-                        .setAutoCancel(true)
-                        .setDefaults(Notification.DEFAULT_ALL)
-                        .setPriority(Notification.PRIORITY_HIGH)
-                        .setContentIntent(pi);
-                nm.notify(notifId++, nb.build());
+                Notif.ensureChannel(MainActivity.this, "wl_msg", "الرسائل", 4 /*IMPORTANCE_HIGH*/);
+                Notification n = Notif.build(MainActivity.this, "wl_msg",
+                        title == null ? "WhatsApp Lite" : title, body, false, Notification.PRIORITY_HIGH, pi);
+                nm.notify(notifId++, n);
                 if (notifId > 1999) notifId = 1000;
             } catch (Exception e) {}
         }

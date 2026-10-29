@@ -536,6 +536,46 @@ input:focus-visible,textarea:focus-visible{outline:0}
 #xc .card{background:var(--sheet);width:100%;max-width:340px;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px}
 #xc b{font-size:18px}#xc p{color:var(--mt);font-size:15.5px}
 #xc .xr{display:flex;gap:10px;margin-top:8px}#xc .xr .btn{flex:1}
+
+/* ============ تحسينات التصميم (ستايل أنعم وأكثر فخامة) ============ */
+/* شاشة الدخول: بطاقة أنيقة على الجوال أيضاً، بخلفية متدرّجة ومسافات متناسقة */
+#auth{background:radial-gradient(135% 72% at 50% -12%,rgba(33,192,99,.20),transparent 58%),var(--bg)}
+#auth .card{gap:13px;background:var(--sheet);padding:28px 24px calc(26px + env(safe-area-inset-bottom));border-radius:28px;box-shadow:0 20px 55px #00000055,inset 0 1px 0 #ffffff10;max-width:430px}
+html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;box-shadow:0 20px 55px #00000012}
+.logo{filter:drop-shadow(0 12px 24px rgba(18,140,74,.38))}
+#auth h1{letter-spacing:.2px}
+.sub{margin:2px 0 10px;font-size:14.5px;line-height:1.55}
+.fld{height:54px;border-radius:15px}
+.fld:focus-within{box-shadow:inset 0 0 0 1.5px var(--ac)}
+.rm{margin-top:2px}
+#auth .lgs{margin-top:8px}
+
+/* الأزرار: تدرّج لوني، ظل ملوّن، وضغطة سلسة */
+.btn{background:linear-gradient(180deg,#2fd877,var(--ac));box-shadow:0 10px 24px rgba(33,192,99,.32);transition:transform .12s ease,box-shadow .2s ease,filter .15s ease}
+.btn:not(:disabled):active{transform:translateY(1px) scale(.985);box-shadow:0 5px 14px rgba(33,192,99,.28)}
+.btn.ghost{background:var(--srch);color:var(--tx);box-shadow:none}
+.btn.red{background:linear-gradient(180deg,#f06565,var(--bad));box-shadow:0 10px 24px rgba(234,79,79,.30)}
+.btn:disabled{box-shadow:none;filter:saturate(.6)}
+
+/* التبويبات واللغات والشرائح: انتقالات ناعمة */
+.tabs .on{box-shadow:0 5px 14px rgba(33,192,99,.30)}
+.tabs button,.lgs button,.chip{transition:background .16s ease,color .16s ease,box-shadow .16s ease,transform .12s ease}
+.tabs button:active,.chip:active,.lgs button:active{transform:scale(.96)}
+
+/* زر الدردشة العائم: تدرّج وظل أعمق + ضغطة */
+.fab{background:linear-gradient(180deg,#2fd877,var(--ac));box-shadow:0 12px 28px rgba(33,192,99,.42);transition:transform .14s ease,box-shadow .2s ease}
+.fab:active{transform:scale(.92)}
+
+/* الصفوف والعناصر القابلة للنقر: استجابة لمس ألطف */
+.row,.it,.ib,.cia button{transition:background .16s ease,transform .12s ease}
+.row:active,.it:active,.cia button:active{transform:scale(.99)}
+.cia button:active{background:var(--acd)}
+
+/* فقاعات الرسائل وشريط البحث: لمسات أنعم */
+.m{box-shadow:0 1px 2px #00000018}
+.search{transition:box-shadow .16s ease}
+.search:focus-within{box-shadow:inset 0 0 0 1.5px var(--ac)}
+
 #pv{position:fixed;inset:0;z-index:300;background:#000d;display:flex;flex-direction:column;animation:fade .15s ease}
 #pv .pvh{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}
 #pv .pvh b{font-size:16px;font-weight:600}

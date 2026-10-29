@@ -3,3 +3,8 @@ dist/
 release/
 cert/*.pfx
 cert/key.pem
+android/build/
+android/wl.keystore
+android/libs/*.jar
+android/*.apk
+android/assets/index.html

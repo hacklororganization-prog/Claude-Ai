@@ -536,6 +536,13 @@ input:focus-visible,textarea:focus-visible{outline:0}
 #xc .card{background:var(--sheet);width:100%;max-width:340px;border-radius:20px;padding:22px;display:flex;flex-direction:column;gap:10px}
 #xc b{font-size:18px}#xc p{color:var(--mt);font-size:15.5px}
 #xc .xr{display:flex;gap:10px;margin-top:8px}#xc .xr .btn{flex:1}
+#pv{position:fixed;inset:0;z-index:300;background:#000d;display:flex;flex-direction:column;animation:fade .15s ease}
+#pv .pvh{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}
+#pv .pvh b{font-size:16px;font-weight:600}
+#pv .pvb{flex:1;display:flex;align-items:center;justify-content:center;padding:16px;min-height:0}
+#pv .pvb img{max-width:min(92vw,520px);max-height:80vh;border-radius:12px;box-shadow:0 10px 40px #000a;object-fit:contain}
+#pv .ib{color:#fff}
+.cpa{cursor:pointer}
 </style>
 </head>
 <body>
@@ -881,6 +888,7 @@ input:focus-visible,textarea:focus-visible{outline:0}
  <div id="vBody"></div>
  <div class="vf"><button id="vRp" class="rp2"><svg class="ic"><use href="#i-reply"/></svg>رد</button></div>
 </div>
+<div id="pv" hidden><div class="pvh"><button id="pvBk" class="ib" aria-label="رجوع"><svg class="ic"><use href="#i-back"/></svg></button><b id="pvNm"></b></div><div class="pvb"><img id="pvI" alt=""></div></div>
 <input id="fi3" type="file" accept="image/*,video/*" multiple hidden>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
@@ -927,7 +935,11 @@ Object.assign(D, {
   "صورة": ["photo", "photo"], "فيديو": ["Video", "Vidéo"], "ملف": ["file", "fichier"], "رسالة": ["messages", "messages"], "لا شيء": ["Nothing yet", "Rien pour l’instant"],
   "مشاركة جهة الاتصال": ["Share contact", "Partager le contact"], "نسخ اسم المستخدم": ["Copy username", "Copier le nom d’utilisateur"],
   "الخروج من التطبيق": ["Exit the app", "Quitter l’application"], "هل تريد الخروج من التطبيق؟": ["Do you want to exit the app?", "Voulez-vous quitter l’application ?"],
-  "نعم": ["Yes", "Oui"], "لا": ["No", "Non"], "رجوع": ["Back", "Retour"]
+  "نعم": ["Yes", "Oui"], "لا": ["No", "Non"], "رجوع": ["Back", "Retour"],
+  "عرض الصورة": ["View photo", "Voir la photo"], "تغيير الصورة": ["Change photo", "Changer la photo"],
+  "حذف الصورة": ["Remove photo", "Supprimer la photo"], "هل تريد حذف صورة ملفك الشخصي؟": ["Remove your profile photo?", "Supprimer votre photo de profil ?"],
+  "تم حذف الصورة": ["Photo removed", "Photo supprimée"], "تعذر حذف الصورة": ["Couldn’t remove the photo", "Impossible de supprimer la photo"],
+  "لا توجد صورة": ["No photo", "Aucune photo"], "صورة الملف الشخصي": ["Profile photo", "Photo de profil"]
 });
 const PAT = [[/^(\d+) أعضاء$/, ["$1 members", "$1 membres"]], [/^(\d+) جهة اتصال$/, ["$1 contacts", "$1 contacts"]]];
 function T(s){
@@ -2100,7 +2112,32 @@ $("pfFile").onchange = e => {
   i.onerror = () => toast(T("تعذر قراءة الصورة"));
   i.src = URL.createObjectURL(f);
 };
-$("avw").onclick = () => $("pfFile").click();
+/* صورة الملف الشخصي: عرض / تغيير / حذف */
+function hasPhoto(uid){ return /^data:image\/[a-z]+;base64,/.test((users.get(uid) || {}).photo || ""); }
+function showAvatar(uid){
+  const u = users.get(uid) || {};
+  if(!hasPhoto(uid)){ toast(T("لا توجد صورة")); return; }
+  $("pvI").src = u.photo; $("pvNm").textContent = uid === me ? T("صورة الملف الشخصي") : (u.name || "");
+  $("pv").hidden = false;
+}
+function closePv(){ $("pv").hidden = true; $("pvI").src = ""; }
+$("pvBk").onclick = closePv;
+$("pv").onclick = e => { if(e.target === $("pv") || e.target.id === "pvI") closePv(); };
+async function removePhoto(){
+  try{ await update(ref(db, "users/" + me), { photo: null }); toast(T("تم حذف الصورة")); }
+  catch(err){ console.error(err); toast(T("تعذر حذف الصورة")); }
+}
+$("avw").onclick = () => {
+  if(!hasPhoto(me)){ $("pfFile").click(); return; }
+  openSheet("", [
+    { label: T("عرض الصورة"), fn: () => showAvatar(me) },
+    { label: T("تغيير الصورة"), fn: () => $("pfFile").click() },
+    { label: T("حذف الصورة"), bad: true, fn: () => openSheet(T("هل تريد حذف صورة ملفك الشخصي؟"), [
+      { label: T("حذف الصورة"), bad: true, fn: () => removePhoto() },
+      { label: T("إلغاء") }
+    ]) }
+  ]);
+};
 let edKey = null;
 function openEd(key, title, max){
   edKey = key; const u = users.get(me) || {};
@@ -2526,6 +2563,7 @@ function buildCi(){
   $("ciB").onclick = async e => {
     const b = e.target.closest("[data-a]"); if(!b || !cur) return;
     const id = cur, u = users.get(id) || {}, a = b.dataset.a;
+    if(a === "photo"){ return showAvatar(id); }
     if(a === "call" || a === "video"){ closeCi(); return pickCall(id, a === "video"); }
     if(a === "pin"){ togglePin(id); return renderCi(); }
     if(a === "clear") return $("clrBtn").click();
@@ -2543,7 +2581,7 @@ async function renderCi(){
   const u = users.get(id) || {}, un = u.username || "", pinned = isPin(id), blocked = blk.includes(id);
   const st = u.online ? T("متصل الآن") : (u.lastSeen && !u.hideSeen ? T("آخر ظهور ") + seen(u.lastSeen) : "");
   const grp = Object.keys(chatsData).filter(g => isG(g) && ((users.get(g) || {}).members || {})[id] && ((users.get(g) || {}).members || {})[me]).map(g => (users.get(g) || {}).name || "").filter(Boolean);
-  $("ciB").innerHTML = `<div class="cip"><div class="cpa">${avHTML(id)}</div><h2 dir="auto">${esc(u.name || "…")}</h2>${un ? `<div class="cpu">@${esc(un)}</div>` : ""}<div class="cps${u.online ? " on" : ""}">${st}</div></div>
+  $("ciB").innerHTML = `<div class="cip"><div class="cpa"${hasPhoto(id) ? ' data-a="photo"' : ""}>${avHTML(id)}</div><h2 dir="auto">${esc(u.name || "…")}</h2>${un ? `<div class="cpu">@${esc(un)}</div>` : ""}<div class="cps${u.online ? " on" : ""}">${st}</div></div>
 <div class="cia"><button data-a="call">${ico("phone")}<span>${T("صوتية")}</span></button><button data-a="video">${ico("video")}<span>${T("فيديو")}</span></button><button data-a="pin"${pinned ? ' class="on"' : ""}>${ico("pin")}<span>${T(pinned ? "إلغاء التثبيت" : "تثبيت")}</span></button><button data-a="share">${ico("share")}<span>${T("مشاركة")}</span></button></div>
 <div class="cig">
 <div class="row ro"><span class="ri">${ico("info")}</span><span class="rx"><b>${T("الحالة")}</b><span class="wrap" dir="auto">${esc(u.about || "—")}</span></span></div>
@@ -2584,6 +2622,7 @@ function exitApp(){
 function closeTop(){
   const vis = id => { const e = $(id); return !!e && !e.hidden; };
   if(vis("xc")){ $("xc").hidden = true; return true; }
+  if(vis("pv")){ closePv(); return true; }
   if(vis("vw")){ closeViewer(); return true; }
   if(vis("cmr")){ closeCam(); return true; }
   if(vis("act")){ closeSheet(); return true; }

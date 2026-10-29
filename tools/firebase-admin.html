@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>لوحة تحكّم Firebase</title>
+<style>
+:root{--bg:#0b1014;--panel:#141c23;--card:#1c272e;--line:#273038;--tx:#e9edef;--mt:#8aa0ac;--ac:#21c063;--acd:#103529;--bad:#ea4f4f;--badd:#3a1515;--warn:#e8a33d}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:"Segoe UI",system-ui,-apple-system,Tahoma,sans-serif;font-size:15px;line-height:1.5}
+h1,h2,h3{margin:0}
+a{color:var(--ac)}
+.wrap{max-width:1000px;margin:0 auto;padding:16px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+header h1{font-size:19px;color:var(--ac)}
+.sp{flex:1}
+.badge{font-size:12.5px;color:var(--mt)}
+.badge b{color:var(--tx)}
+button{cursor:pointer;border:0;border-radius:10px;padding:9px 15px;font:inherit;font-weight:600;background:var(--ac);color:#04201a;transition:transform .1s,filter .15s}
+button:active{transform:scale(.97)}
+button.sec{background:var(--card);color:var(--tx);border:1px solid var(--line)}
+button.bad{background:var(--bad);color:#fff}
+button.warn{background:var(--warn);color:#2a1c00}
+button.sm{padding:6px 11px;font-size:13px;border-radius:8px}
+button:disabled{opacity:.5;cursor:default}
+input,textarea,select{font:inherit;background:var(--card);color:var(--tx);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:160px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;white-space:pre}
+label{display:block;font-size:13px;color:var(--mt);margin:0 0 5px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+.row>div{flex:1;min-width:160px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin:14px 0}
+.card h2{font-size:16px;margin-bottom:12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h2 .sp{flex:1}
+.muted{color:var(--mt);font-size:13px}
+.hide{display:none!important}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0}
+.tabs button{background:var(--card);color:var(--mt);border:1px solid var(--line)}
+.tabs button.on{background:var(--acd);color:var(--ac);border-color:transparent}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:start;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--mt);font-weight:600;font-size:12.5px}
+td .av{width:40px;height:40px;border-radius:50%;object-fit:cover;background:var(--card);display:inline-block;vertical-align:middle}
+.noav{width:40px;height:40px;border-radius:50%;background:var(--card);display:grid;place-items:center;color:var(--mt);font-size:12px}
+.act{display:flex;gap:6px;flex-wrap:wrap}
+.pill{display:inline-block;padding:2px 9px;border-radius:10px;font-size:12px}
+.on-p{background:var(--acd);color:var(--ac)}
+.off-p{background:#2a2222;color:#c98}
+.err{color:var(--bad);font-size:13.5px;margin-top:8px;white-space:pre-wrap}
+.ok{color:var(--ac);font-size:13.5px;margin-top:8px}
+.danger{border-color:var(--badd);background:#1a1012}
+.danger h2{color:var(--bad)}
+code,kbd{background:var(--card);padding:2px 6px;border-radius:6px;font-size:13px}
+pre.rules{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px;overflow:auto;font-size:12.5px;white-space:pre}
+.count{font-size:28px;font-weight:700;color:var(--ac)}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.stat{flex:1;min-width:120px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center}
+.stat small{display:block;color:var(--mt);font-size:12.5px;margin-top:3px}
+</style>
+</head>
+<body>
+<header>
+  <h1>🔧 لوحة تحكّم Firebase</h1>
+  <div class="sp"></div>
+  <span class="badge" id="who"></span>
+  <button class="sec sm hide" id="btnOut">خروج</button>
+</header>
+
+<div class="wrap">
+
+<!-- الاتصال وتسجيل الدخول -->
+<div class="card" id="loginCard">
+  <h2>١) الاتصال وتسجيل الدخول (كأدمن)</h2>
+  <p class="muted">أدخل إعدادات مشروعك ثم سجّل الدخول بحساب تريد جعله أدمن. القيم معبّأة بإعدادات تطبيقك الحالي — غيّرها إن أنشأت مشروعاً جديداً.</p>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>apiKey</label><input id="c_apiKey"></div>
+    <div><label>databaseURL</label><input id="c_databaseURL"></div>
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>authDomain</label><input id="c_authDomain"></div>
+    <div><label>projectId</label><input id="c_projectId"></div>
+  </div>
+  <div class="row" style="margin-bottom:10px">
+    <div><label>storageBucket</label><input id="c_storageBucket"></div>
+    <div><label>messagingSenderId</label><input id="c_messagingSenderId"></div>
+  </div>
+  <div style="margin-bottom:12px"><label>appId</label><input id="c_appId"></div>
+  <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+  <div class="row">
+    <div><label>اسم المستخدم (أو البريد كاملاً)</label><input id="l_user" placeholder="zingo  أو  zingo@wachat.app" autocapitalize="off" spellcheck="false"></div>
+    <div><label>كلمة المرور</label><input id="l_pass" type="password"></div>
+    <div style="flex:0 0 auto"><button id="btnIn">دخول</button></div>
+  </div>
+  <div class="muted" style="margin-top:8px">نطاق البريد الافتراضي للتطبيق: <code>@wachat.app</code> (يُضاف تلقائياً إن أدخلت اسم مستخدم فقط).</div>
+  <div class="err" id="loginErr"></div>
+</div>
+
+<!-- اللوحة -->
+<div id="panel" class="hide">
+
+  <!-- قاعدة الأدمن -->
+  <div class="card">
+    <h2>٢) تفعيل صلاحيات الأدمن الكاملة <span class="sp"></span><button class="sec sm" id="btnCopyRules">نسخ القاعدة</button></h2>
+    <p class="muted">القواعد الحالية تمنعك من حذف بيانات مستخدم آخر. لتحصل على <b>تحكّم كامل</b>، انسخ القاعدة التالية والصقها في:
+    <br>Firebase Console → Realtime Database → Rules → Publish.</p>
+    <p class="muted">UID الخاص بك (الأدمن): <code id="myuid"></code></p>
+    <pre class="rules" id="rulesBox"></pre>
+    <p class="muted">بدون هذه القاعدة: تستطيع <b>العرض</b> وحذف بياناتك أنت فقط. معها: تحذف أي شيء.</p>
+  </div>
+
+  <!-- إحصائيات -->
+  <div class="card">
+    <h2>الإحصائيات <span class="sp"></span><button class="sec sm" id="btnRefresh">تحديث الكل</button></h2>
+    <div class="stats" id="stats"></div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button data-t="users" class="on">المستخدمون</button>
+    <button data-t="usernames">أسماء المستخدمين</button>
+    <button data-t="groups">المجموعات</button>
+    <button data-t="signals">الإشارات</button>
+    <button data-t="raw">المتصفّح الخام</button>
+    <button data-t="danger">منطقة الخطر</button>
+  </div>
+
+  <!-- المستخدمون -->
+  <div class="card tabview" id="v_users">
+    <h2>المستخدمون <span class="sp"></span><button class="sec sm" id="u_reload">تحديث</button></h2>
+    <div id="u_body"><p class="muted">اضغط تحديث…</p></div>
+  </div>
+
+  <!-- أسماء المستخدمين -->
+  <div class="card tabview hide" id="v_usernames">
+    <h2>سجلّ أسماء المستخدمين <span class="sp"></span><button class="sec sm" id="n_reload">تحديث</button></h2>
+    <div id="n_body"><p class="muted">اضغط تحديث…</p></div>
+  </div>
+
+  <!-- المجموعات -->
+  <div class="card tabview hide" id="v_groups">
+    <h2>المجموعات <span class="sp"></span><button class="sec sm" id="g_reload">تحديث</button></h2>
+    <div id="g_body"><p class="muted">اضغط تحديث…</p></div>
+  </div>
+
+  <!-- الإشارات -->
+  <div class="card tabview hide" id="v_signals">
+    <h2>الإشارات المعلّقة (WebRTC) <span class="sp"></span><button class="sec sm" id="s_reload">تحديث</button></h2>
+    <div id="s_body"><p class="muted">اضغط تحديث…</p></div>
+  </div>
+
+  <!-- المتصفّح الخام -->
+  <div class="card tabview hide" id="v_raw">
+    <h2>المتصفّح الخام (أي مسار)</h2>
+    <div class="row" style="margin-bottom:10px">
+      <div><label>المسار</label><input id="r_path" placeholder="users  أو  users/UID  أو  groups/GID" value="users"></div>
+      <div style="flex:0 0 auto"><button class="sec" id="r_load">عرض</button></div>
+    </div>
+    <textarea id="r_json" placeholder="قيمة JSON ستظهر هنا…"></textarea>
+    <div class="act" style="margin-top:10px">
+      <button id="r_save">حفظ (set)</button>
+      <button class="bad" id="r_del">حذف هذا المسار</button>
+    </div>
+    <div class="err" id="r_msg"></div>
+  </div>
+
+  <!-- منطقة الخطر -->
+  <div class="card danger tabview hide" id="v_danger">
+    <h2>⚠️ منطقة الخطر — حذف جماعي لا يمكن التراجع عنه</h2>
+    <p class="muted">كل زر يطلب تأكيداً مزدوجاً. يحذف من قاعدة البيانات فقط (لا يحذف حسابات تسجيل الدخول — تلك من Console → Authentication).</p>
+    <div class="act">
+      <button class="bad" data-wipe="users">حذف كل المستخدمين</button>
+      <button class="bad" data-wipe="usernames">حذف كل أسماء المستخدمين</button>
+      <button class="bad" data-wipe="groups">حذف كل المجموعات</button>
+      <button class="bad" data-wipe="signals">حذف كل الإشارات</button>
+      <button class="bad" data-wipe="__ALL__">🔥 محو كل شيء</button>
+    </div>
+    <div class="card" style="margin-top:14px;background:var(--card)">
+      <h3 style="font-size:14px;margin-bottom:8px">حذف كل صور البروفايل فقط</h3>
+      <p class="muted">يُفرّغ حقل <code>photo</code> من كل المستخدمين دون حذفهم.</p>
+      <button class="warn sm" id="btnWipePhotos">حذف كل الصور</button>
+    </div>
+    <div class="err" id="d_msg"></div>
+  </div>
+
+</div><!-- /panel -->
+</div><!-- /wrap -->
+
+<script type="module">
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-auth.js";
+import { getDatabase, ref, get, set, update, remove } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?"":s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+/* إعدادات مشروعك الحالية (عدّلها إن أنشأت مشروعاً جديداً) */
+const DEFAULTS = {
+  apiKey: "AIzaSyDWRLBKr74jw3BP6s-rVOHZt-RqEzXUhuE",
+  authDomain: "my-chat-app-335f0.firebaseapp.com",
+  databaseURL: "https://my-chat-app-335f0-default-rtdb.firebaseio.com",
+  projectId: "my-chat-app-335f0",
+  storageBucket: "my-chat-app-335f0.firebasestorage.app",
+  messagingSenderId: "178156483149",
+  appId: "1:178156483149:web:f035ff31b170763160e204"
+};
+const saved = (()=>{ try{ return JSON.parse(localStorage.getItem("fbadmin_cfg")||"null"); }catch{ return null; } })();
+const cfg0 = saved || DEFAULTS;
+for(const k in DEFAULTS) $("c_"+k).value = cfg0[k] || "";
+
+let app=null, auth=null, db=null, me=null;
+
+$("btnIn").onclick = async () => {
+  $("loginErr").textContent = "";
+  const cfg = {}; for(const k in DEFAULTS) cfg[k] = $("c_"+k).value.trim();
+  if(!cfg.apiKey || !cfg.databaseURL){ $("loginErr").textContent = "أدخل على الأقل apiKey و databaseURL"; return; }
+  localStorage.setItem("fbadmin_cfg", JSON.stringify(cfg));
+  let u = $("l_user").value.trim(); const pw = $("l_pass").value;
+  if(!u || !pw){ $("loginErr").textContent = "أدخل اسم المستخدم وكلمة المرور"; return; }
+  if(!u.includes("@")) u = u.toLowerCase() + "@wachat.app";
+  try{
+    if(app) await deleteApp(app).catch(()=>{});
+    app = initializeApp(cfg, "admin_"+Date.now());
+    auth = getAuth(app); db = getDatabase(app);
+    $("btnIn").disabled = true; $("btnIn").textContent = "جارٍ…";
+    const cred = await signInWithEmailAndPassword(auth, u, pw);
+    afterLogin(cred.user);
+  }catch(e){ $("loginErr").textContent = "فشل: " + (e.code || e.message); $("btnIn").disabled=false; $("btnIn").textContent="دخول"; }
+};
+
+function makeRules(uid){
+  return `{
+  "rules": {
+    ".read": "auth != null && auth.uid === '${uid}'",
+    ".write": "auth != null && auth.uid === '${uid}'",
+    "users": { "$u": {
+      ".read": "auth != null",
+      ".write": "auth.uid === $u",
+      "name": { ".validate": "newData.isString() && newData.val().length <= 30" },
+      "about": { ".validate": "newData.isString() && newData.val().length <= 80" },
+      "photo": { ".validate": "newData.isString() && newData.val().length < 80000 && newData.val().matches(/^data:image\\\\/(jpeg|png|webp);base64,/)" },
+      "username": { ".validate": "newData.isString() && newData.val().matches(/^[a-z0-9_]{3,20}$/)" },
+      "online": { ".validate": "newData.isBoolean()" },
+      "lastSeen": { ".validate": "newData.isNumber()" },
+      "hideSeen": { ".validate": "newData.isBoolean()" },
+      "$other": { ".validate": false }
+    }},
+    "usernames": { "$n": {
+      ".read": "auth != null",
+      ".write": "auth != null && (!data.exists() || data.val() === auth.uid) && (!newData.exists() || root.child('users').child(auth.uid).child('username').val() === $n)",
+      ".validate": "newData.val() === auth.uid && $n.matches(/^[a-z0-9_]{3,20}$/)"
+    }},
+    "groups": { "$g": {
+      ".read": "data.child('members').child(auth.uid).exists()",
+      ".write": "!data.exists() && newData.child('admin').val() === auth.uid && newData.child('members').child(auth.uid).exists() && newData.child('members').numChildren() <= 100",
+      ".validate": "newData.hasChildren(['name','admin','members'])",
+      "name": { ".write": "data.parent().child('admin').val() === auth.uid", ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30" },
+      "admin": { ".validate": "newData.isString()" },
+      "ts": { ".validate": "newData.isNumber()" },
+      "members": { "$m": {
+        ".write": "data.parent().parent().child('admin').val() === auth.uid || ($m === auth.uid && !newData.exists())",
+        ".validate": "newData.val() === true && root.child('users').child($m).exists()"
+      }},
+      "$other": { ".validate": false }
+    }},
+    "signals": { "$to": {
+      ".read": "auth.uid === $to",
+      ".write": "auth.uid === $to",
+      "$k": {
+        ".write": "auth != null && !data.exists() && root.child('users').child($to).exists()",
+        ".validate": "newData.hasChildren(['from','data']) && newData.child('from').val() === auth.uid && newData.child('data').isString() && newData.child('data').val().length < 20000",
+        "from": { ".validate": "newData.isString()" },
+        "data": { ".validate": "newData.isString()" },
+        "$other": { ".validate": false }
+      }
+    }}
+  }
+}`;
+}
+
+function afterLogin(user){
+  me = user;
+  $("btnIn").disabled=false; $("btnIn").textContent="دخول";
+  $("loginCard").classList.add("hide");
+  $("panel").classList.remove("hide");
+  $("btnOut").classList.remove("hide");
+  $("who").innerHTML = "متصل: <b>"+esc(user.email||user.uid)+"</b>";
+  $("myuid").textContent = user.uid;
+  $("rulesBox").textContent = makeRules(user.uid);
+  refreshAll();
+}
+
+$("btnOut").onclick = async () => { try{ await signOut(auth); }catch{} location.reload(); };
+$("btnCopyRules").onclick = () => { navigator.clipboard.writeText($("rulesBox").textContent).then(()=>$("btnCopyRules").textContent="تم النسخ ✓"); };
+
+/* ========= البيانات ========= */
+async function tryGet(path){ try{ const s = await get(ref(db, path)); return s.exists() ? s.val() : null; }catch(e){ return {__err: e.code||e.message}; } }
+
+async function refreshAll(){
+  const [u, n, g, s] = await Promise.all([tryGet("users"), tryGet("usernames"), tryGet("groups"), tryGet("signals")]);
+  const cnt = o => o && !o.__err ? Object.keys(o).length : (o&&o.__err?"⚠":0);
+  $("stats").innerHTML =
+    `<div class="stat"><div class="count">${cnt(u)}</div><small>مستخدمون</small></div>`+
+    `<div class="stat"><div class="count">${cnt(n)}</div><small>أسماء مستخدمين</small></div>`+
+    `<div class="stat"><div class="count">${cnt(g)}</div><small>مجموعات</small></div>`+
+    `<div class="stat"><div class="count">${cnt(s)}</div><small>مستخدمون لديهم إشارات</small></div>`;
+  renderUsers(u); renderUsernames(n); renderGroups(g); renderSignals(s);
+}
+$("btnRefresh").onclick = refreshAll;
+
+/* ---- المستخدمون ---- */
+function renderUsers(u){
+  const b = $("u_body");
+  if(!u){ b.innerHTML = '<p class="muted">لا يوجد مستخدمون.</p>'; return; }
+  if(u.__err){ b.innerHTML = '<p class="err">تعذّر القراءة: '+esc(u.__err)+'</p>'; return; }
+  const ids = Object.keys(u);
+  let h = '<table><thead><tr><th>الصورة</th><th>الاسم</th><th>المستخدم</th><th>UID</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>';
+  for(const id of ids){ const v = u[id]||{}; const hasPhoto = /^data:image\//.test(v.photo||"");
+    h += `<tr data-uid="${esc(id)}" data-un="${esc(v.username||"")}">`+
+      `<td>${hasPhoto?`<img class="av" src="${esc(v.photo)}">`:'<span class="noav">—</span>'}</td>`+
+      `<td>${esc(v.name||"—")}</td>`+
+      `<td>${v.username?"@"+esc(v.username):"—"}</td>`+
+      `<td><code>${esc(id).slice(0,10)}…</code></td>`+
+      `<td>${v.online?'<span class="pill on-p">متصل</span>':'<span class="pill off-p">غير متصل</span>'}</td>`+
+      `<td><div class="act">`+
+        (hasPhoto?`<button class="warn sm" data-act="delphoto">حذف الصورة</button>`:``)+
+        `<button class="bad sm" data-act="deluser">حذف المستخدم</button>`+
+      `</div></td></tr>`;
+  }
+  h += '</tbody></table>';
+  b.innerHTML = h;
+}
+$("u_reload").onclick = async ()=>{ renderUsers(await tryGet("users")); };
+$("u_body").onclick = async e => {
+  const btn = e.target.closest("button[data-act]"); if(!btn) return;
+  const tr = btn.closest("tr"); const uid = tr.dataset.uid, un = tr.dataset.un;
+  if(btn.dataset.act==="delphoto"){
+    if(!confirm("حذف صورة هذا المستخدم؟")) return;
+    try{ await update(ref(db,"users/"+uid),{photo:null}); btn.remove(); tr.querySelector(".av,.noav").outerHTML='<span class="noav">—</span>'; }
+    catch(err){ alert("فشل: "+(err.code||err.message)); }
+  } else if(btn.dataset.act==="deluser"){
+    if(!confirm("حذف هذا المستخدم نهائياً من قاعدة البيانات (الملف + اسم المستخدم)؟\nملاحظة: حساب تسجيل الدخول يُحذف من Console.")) return;
+    try{ await remove(ref(db,"users/"+uid)); if(un) await remove(ref(db,"usernames/"+un)).catch(()=>{}); tr.remove(); }
+    catch(err){ alert("فشل: "+(err.code||err.message)); }
+  }
+};
+
+/* ---- أسماء المستخدمين ---- */
+function renderUsernames(n){
+  const b = $("n_body");
+  if(!n){ b.innerHTML='<p class="muted">فارغ.</p>'; return; }
+  if(n.__err){ b.innerHTML='<p class="err">'+esc(n.__err)+'</p>'; return; }
+  let h='<table><thead><tr><th>اسم المستخدم</th><th>UID</th><th></th></tr></thead><tbody>';
+  for(const k of Object.keys(n)) h+=`<tr data-n="${esc(k)}"><td>@${esc(k)}</td><td><code>${esc(String(n[k])).slice(0,16)}…</code></td><td><button class="bad sm" data-del>حذف</button></td></tr>`;
+  b.innerHTML=h+'</tbody></table>';
+}
+$("n_reload").onclick=async()=>renderUsernames(await tryGet("usernames"));
+$("n_body").onclick=async e=>{ const btn=e.target.closest("[data-del]"); if(!btn)return; const tr=btn.closest("tr");
+  if(!confirm("حذف @"+tr.dataset.n+"؟"))return;
+  try{ await remove(ref(db,"usernames/"+tr.dataset.n)); tr.remove(); }catch(err){ alert("فشل: "+(err.code||err.message)); } };
+
+/* ---- المجموعات ---- */
+function renderGroups(g){
+  const b=$("g_body");
+  if(!g){ b.innerHTML='<p class="muted">لا مجموعات.</p>'; return; }
+  if(g.__err){ b.innerHTML='<p class="err">'+esc(g.__err)+'</p>'; return; }
+  let h='<table><thead><tr><th>الاسم</th><th>الأعضاء</th><th>المشرف</th><th>GID</th><th></th></tr></thead><tbody>';
+  for(const id of Object.keys(g)){ const v=g[id]||{}; const mem=v.members?Object.keys(v.members).length:0;
+    h+=`<tr data-g="${esc(id)}"><td>${esc(v.name||"—")}</td><td>${mem}</td><td><code>${esc(String(v.admin||"")).slice(0,10)}…</code></td><td><code>${esc(id).slice(0,10)}…</code></td><td><button class="bad sm" data-del>حذف</button></td></tr>`;
+  }
+  b.innerHTML=h+'</tbody></table>';
+}
+$("g_reload").onclick=async()=>renderGroups(await tryGet("groups"));
+$("g_body").onclick=async e=>{ const btn=e.target.closest("[data-del]"); if(!btn)return; const tr=btn.closest("tr");
+  if(!confirm("حذف هذه المجموعة؟"))return;
+  try{ await remove(ref(db,"groups/"+tr.dataset.g)); tr.remove(); }catch(err){ alert("فشل: "+(err.code||err.message)); } };
+
+/* ---- الإشارات ---- */
+function renderSignals(s){
+  const b=$("s_body");
+  if(!s){ b.innerHTML='<p class="muted">لا إشارات معلّقة.</p>'; return; }
+  if(s.__err){ b.innerHTML='<p class="err">'+esc(s.__err)+'</p>'; return; }
+  let h='<table><thead><tr><th>المُستقبِل (UID)</th><th>عدد الإشارات</th><th></th></tr></thead><tbody>';
+  for(const to of Object.keys(s)){ const c=s[to]?Object.keys(s[to]).length:0;
+    h+=`<tr data-to="${esc(to)}"><td><code>${esc(to).slice(0,16)}…</code></td><td>${c}</td><td><button class="bad sm" data-del>حذف الكل</button></td></tr>`;
+  }
+  b.innerHTML=h+'</tbody></table>';
+}
+$("s_reload").onclick=async()=>renderSignals(await tryGet("signals"));
+$("s_body").onclick=async e=>{ const btn=e.target.closest("[data-del]"); if(!btn)return; const tr=btn.closest("tr");
+  if(!confirm("حذف كل إشارات هذا المستخدم؟"))return;
+  try{ await remove(ref(db,"signals/"+tr.dataset.to)); tr.remove(); }catch(err){ alert("فشل: "+(err.code||err.message)); } };
+
+/* ---- المتصفّح الخام ---- */
+$("r_load").onclick=async()=>{ $("r_msg").textContent=""; $("r_msg").className="err";
+  const p=$("r_path").value.trim(); if(!p){ $("r_msg").textContent="أدخل مساراً"; return; }
+  const v=await tryGet(p);
+  if(v&&v.__err){ $("r_msg").textContent="تعذّر: "+v.__err; $("r_json").value=""; return; }
+  $("r_json").value = JSON.stringify(v, null, 2);
+};
+$("r_save").onclick=async()=>{ $("r_msg").textContent=""; const p=$("r_path").value.trim();
+  let val; try{ val=JSON.parse($("r_json").value); }catch(e){ $("r_msg").className="err"; $("r_msg").textContent="JSON غير صالح: "+e.message; return; }
+  if(!confirm("كتابة (set) على المسار: "+p+" ؟"))return;
+  try{ await set(ref(db,p),val); $("r_msg").className="ok"; $("r_msg").textContent="تم الحفظ ✓"; }catch(e){ $("r_msg").className="err"; $("r_msg").textContent="فشل: "+(e.code||e.message); } };
+$("r_del").onclick=async()=>{ const p=$("r_path").value.trim();
+  if(!confirm("حذف المسار نهائياً: "+p+" ؟"))return;
+  try{ await remove(ref(db,p)); $("r_json").value="null"; $("r_msg").className="ok"; $("r_msg").textContent="تم الحذف ✓"; }catch(e){ $("r_msg").className="err"; $("r_msg").textContent="فشل: "+(e.code||e.message); } };
+
+/* ---- منطقة الخطر ---- */
+$("v_danger").addEventListener("click", async e => {
+  const btn = e.target.closest("[data-wipe]"); if(!btn) return;
+  const w = btn.dataset.wipe;
+  const names = {users:"كل المستخدمين", usernames:"كل أسماء المستخدمين", groups:"كل المجموعات", signals:"كل الإشارات", __ALL__:"كل شيء في قاعدة البيانات"};
+  if(!confirm("⚠️ سيُحذف "+names[w]+" نهائياً. متأكد؟")) return;
+  if(prompt('اكتب "حذف" للتأكيد النهائي:') !== "حذف") return;
+  try{ await remove(ref(db, w==="__ALL__" ? "/" : w)); $("d_msg").className="ok"; $("d_msg").textContent="تم حذف "+names[w]+" ✓"; refreshAll(); }
+  catch(err){ $("d_msg").className="err"; $("d_msg").textContent="فشل: "+(err.code||err.message); }
+});
+$("btnWipePhotos").onclick = async () => {
+  if(!confirm("حذف صور البروفايل من كل المستخدمين؟")) return;
+  const u = await tryGet("users"); if(!u || u.__err){ alert("تعذّر القراءة"); return; }
+  const upd = {}; let n=0;
+  for(const id in u) if(/^data:image\//.test((u[id]||{}).photo||"")){ upd["users/"+id+"/photo"]=null; n++; }
+  if(!n){ $("d_msg").className="ok"; $("d_msg").textContent="لا صور للحذف."; return; }
+  try{ await update(ref(db), upd); $("d_msg").className="ok"; $("d_msg").textContent="تم حذف "+n+" صورة ✓"; refreshAll(); }
+  catch(e){ $("d_msg").className="err"; $("d_msg").textContent="فشل: "+(e.code||e.message); }
+};
+
+/* ---- التبويبات ---- */
+$("tabs").onclick = e => { const b=e.target.closest("button[data-t]"); if(!b)return;
+  [...$("tabs").children].forEach(x=>x.classList.toggle("on", x===b));
+  document.querySelectorAll(".tabview").forEach(v=>v.classList.add("hide"));
+  $("v_"+b.dataset.t).classList.remove("hide");
+};
+
+</script>
+</body>
+</html>

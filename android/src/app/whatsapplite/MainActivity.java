@@ -33,6 +33,27 @@ public class MainActivity extends Activity {
     private WebChromeClient.CustomViewCallback customCb;
     private static final int REQ_FILE = 1, REQ_PERM = 2;
     private int notifId = 1000;
+    private boolean exiting = false;
+
+    private void startKeeper() {
+        try { startService(new Intent(this, KeeperService.class)); } catch (Exception e) {}
+    }
+    private void stopKeeper() {
+        try { stopService(new Intent(this, KeeperService.class)); } catch (Exception e) {}
+    }
+
+    // التطبيق في المقدمة: أوقف الخدمة (لا حاجة للإشعار الدائم)، واستأنف الواجهة
+    @Override protected void onStart() {
+        super.onStart();
+        stopKeeper();
+        if (web != null) { web.onResume(); web.resumeTimers(); }
+    }
+
+    // التطبيق في الخلفية: شغّل الخدمة لإبقاء الاتصال حيّاً واستقبال الرسائل
+    @Override protected void onStop() {
+        super.onStop();
+        if (!exiting) startKeeper();
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -179,6 +200,8 @@ public class MainActivity extends Activity {
     class JsBridge {
         @android.webkit.JavascriptInterface
         public void exitApp() {
+            exiting = true;
+            stopKeeper();
             runOnUiThread(new Runnable() { public void run() { finishAffinity(); } });
         }
 

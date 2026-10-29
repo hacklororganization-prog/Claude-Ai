@@ -35,6 +35,22 @@ public class MainActivity extends Activity {
     private int notifId = 1000;
     private boolean exiting = false;
 
+    // إخفاء شريط التنقّل السفلي (يعود مؤقتاً بالسحب من الحافة ثم يختفي تلقائياً)
+    private void hideNav() {
+        try {
+            getWindow().getDecorView().setSystemUiVisibility(
+                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                  | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                  | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                  | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+        } catch (Exception e) {}
+    }
+
+    @Override public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus) hideNav();
+    }
+
     private void startKeeper() {
         try { startService(new Intent(this, KeeperService.class)); } catch (Exception e) {}
     }
@@ -60,19 +76,20 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
 
-        // ===== توحيد لون أشرطة النظام مع التطبيق (أعلى وأسفل) =====
+        // ===== ملء الشاشة الغامر: إخفاء شريط التنقّل السفلي نهائياً =====
         final int appBg = 0xFF0B1014;
         Window w = getWindow();
         w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
                 | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(appBg));
-        w.setStatusBarColor(appBg);
-        w.setNavigationBarColor(appBg);
+        w.setStatusBarColor(appBg);       // نُبقي شريط الحالة العلوي بلون التطبيق
+        w.setNavigationBarColor(Color.TRANSPARENT);
 
         web = new WebView(this);
         web.setBackgroundColor(appBg);
         setContentView(web);
+        hideNav();
 
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);

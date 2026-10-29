@@ -1214,7 +1214,7 @@ async function doAuth(){
       await set(ref(db, "usernames/" + un), c.user.uid);
     }else await signInWithEmailAndPassword(auth, mail(un), pw);
     LS.set("cred", { u: $("rm").checked ? un : "", p: "" });
-  }catch(e){ console.error(e); er(AERR[e.code] || T("تعذر إتمام العملية، حاول مرة أخرى")); }
+  }catch(e){ console.error(e); const code = (e && (e.code || e.message)) || "?"; er(AERR[e.code] || (T("تعذر إتمام العملية") + " (" + code + ")")); }
   $("go").disabled = false; if(!auth.currentUser) busyHide(0);
 }
 $("go").onclick = doAuth;

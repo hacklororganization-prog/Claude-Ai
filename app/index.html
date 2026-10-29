@@ -596,6 +596,20 @@ html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;bo
 .tab.on .pill{box-shadow:0 3px 11px rgba(33,192,99,.22)}
 .tab .pill{transition:background .16s ease,box-shadow .2s ease}
 
+/* ===== شاشة المحادثة ===== */
+/* رأس المحادثة: فصل أنيق عن الرسائل */
+.chead{box-shadow:0 1px 0 var(--ln),0 2px 10px #00000026;z-index:2}
+/* فقاعات أنعم بزوايا أرحب وظل ألطف (زاوية الذيل تبقى كما هي من القواعد الأصلية الأكثر تحديداً) */
+.m{border-radius:14px;box-shadow:0 1px 2px #00000026}
+/* حقل الكتابة: إطار تركيز أخضر خفيف */
+#bar .field{transition:box-shadow .16s ease}
+#bar .field:focus-within{box-shadow:0 1px 2px #0003,inset 0 0 0 1.5px rgba(33,192,99,.5)}
+/* أزرار الإرسال/الصوت: تدرّج وظل وحركة ضغط */
+.act{background:linear-gradient(180deg,#2fd877,var(--ac));box-shadow:0 6px 16px rgba(33,192,99,.36);transition:transform .13s ease,box-shadow .2s ease}
+.act:active{transform:scale(.9)}
+/* زر النزول لآخر رسالة */
+#dn{transition:transform .13s ease}#dn:active{transform:scale(.9)}
+
 #pv{position:fixed;inset:0;z-index:300;background:#000d;display:flex;flex-direction:column;animation:fade .15s ease}
 #pv .pvh{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}
 #pv .pvh b{font-size:16px;font-weight:600}
@@ -1033,8 +1047,16 @@ let toastT;
 function toast(t){ try{ console.log("[toast]", T(t)); }catch{} }
 let banT;
 function banner(){}
-function notify(t, b){ try{ if(document.hidden && Notification.permission === "granted") new Notification(T(t), { body: T(b) }); }catch{} }
-document.addEventListener("click", () => { try{ if(Notification.permission === "default") Notification.requestPermission(); }catch{} }, { once: true });
+function notify(t, b){
+  try{
+    if(!document.hidden && document.hasFocus()) return; /* لا تُزعج إلا إذا كان التطبيق في الخلفية أو غير مركّز */
+    /* أندرويد: جسر أصلي يعرض إشعار نظام حقيقي */
+    if(window.App && typeof window.App.notify === "function"){ window.App.notify(String(T(t)), String(T(b))); return; }
+    /* سطح المكتب/الويب: Web Notifications */
+    if(typeof Notification !== "undefined" && Notification.permission === "granted") new Notification(T(t), { body: T(b), tag: "wl-msg", renotify: true });
+  }catch{}
+}
+document.addEventListener("click", () => { try{ if(typeof Notification !== "undefined" && Notification.permission === "default") Notification.requestPermission(); }catch{} }, { once: true });
 
 /* ============ إعدادات محلية ============ */
 const LS = { get(k, d){ try{ const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); }catch{ return d; } }, set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch{} } };

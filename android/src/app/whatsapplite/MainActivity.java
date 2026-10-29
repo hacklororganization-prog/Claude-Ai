@@ -2,13 +2,19 @@ package app.whatsapplite;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.GeolocationPermissions;
 import android.webkit.PermissionRequest;
 import android.webkit.ValueCallback;
@@ -26,13 +32,22 @@ public class MainActivity extends Activity {
     private View customView;
     private WebChromeClient.CustomViewCallback customCb;
     private static final int REQ_FILE = 1, REQ_PERM = 2;
+    private int notifId = 1000;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
     protected void onCreate(Bundle b) {
         super.onCreate(b);
 
+        // عرض بلون موحّد مع التطبيق (يزيل الشريط/الفراغ أسفل وأعلى الشاشة)
+        Window w = getWindow();
+        w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        int appBg = 0xFF0B1014;
+        w.setStatusBarColor(appBg);
+        w.setNavigationBarColor(appBg);
+
         web = new WebView(this);
+        web.setBackgroundColor(appBg);
         setContentView(web);
 
         WebSettings s = web.getSettings();
@@ -165,6 +180,31 @@ public class MainActivity extends Activity {
         @android.webkit.JavascriptInterface
         public void exitApp() {
             runOnUiThread(new Runnable() { public void run() { finishAffinity(); } });
+        }
+
+        // إشعار رسالة نظامي (يُستدعى من الصفحة عبر window.App.notify)
+        @android.webkit.JavascriptInterface
+        public void notify(String title, String body) {
+            try {
+                NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (nm == null) return;
+                Intent i = new Intent(MainActivity.this, MainActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                int piFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+                if (Build.VERSION.SDK_INT >= 23) piFlags |= 0x4000000; // FLAG_IMMUTABLE
+                PendingIntent pi = PendingIntent.getActivity(MainActivity.this, 0, i, piFlags);
+
+                Notification.Builder nb = new Notification.Builder(MainActivity.this)
+                        .setSmallIcon(getApplicationInfo().icon)
+                        .setContentTitle(title == null ? "WhatsApp Lite" : title)
+                        .setContentText(body)
+                        .setAutoCancel(true)
+                        .setDefaults(Notification.DEFAULT_ALL)
+                        .setPriority(Notification.PRIORITY_HIGH)
+                        .setContentIntent(pi);
+                nm.notify(notifId++, nb.build());
+                if (notifId > 1999) notifId = 1000;
+            } catch (Exception e) {}
         }
     }
 }

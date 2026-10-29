@@ -1,0 +1,51 @@
+{
+  "name": "whatsapp-lite",
+  "productName": "WhatsApp Lite",
+  "version": "1.0.0",
+  "description": "WhatsApp Lite desktop app",
+  "author": "WhatsApp Lite",
+  "private": true,
+  "main": "dist/main.js",
+  "scripts": {
+    "prepare-app": "node scripts/prepare.js",
+    "start": "npm run prepare-app && electron .",
+    "dist": "npm run prepare-app && electron-builder --win --x64",
+    "dist:linux-host": "npm run prepare-app && electron-builder --win --x64 -c.win.signAndEditExecutable=false"
+  },
+  "devDependencies": {
+    "electron": "45.1.0",
+    "electron-builder": "26.0.12",
+    "javascript-obfuscator": "4.1.1"
+  },
+  "build": {
+    "appId": "app.whatsapplite.desktop",
+    "productName": "WhatsApp Lite",
+    "directories": { "output": "release", "buildResources": "build" },
+    "files": [ "dist/**/*", "!node_modules/**/*" ],
+    "asar": true,
+    "electronFuses": {
+      "runAsNode": false,
+      "enableCookieEncryption": true,
+      "enableNodeOptionsEnvironmentVariable": false,
+      "enableNodeCliInspectArguments": false,
+      "enableEmbeddedAsarIntegrityValidation": true,
+      "onlyLoadAppFromAsar": true,
+      "grantFileProtocolExtraPrivileges": false
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "WhatsApp Lite",
+      "artifactName": "WhatsApp-Lite-Setup-${version}.exe"
+    },
+    "portable": { "artifactName": "WhatsApp-Lite-Portable-${version}.exe" }
+  }
+}

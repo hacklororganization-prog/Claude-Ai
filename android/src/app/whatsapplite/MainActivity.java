@@ -60,15 +60,33 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle b) {
         super.onCreate(b);
 
-        // عرض بلون موحّد مع التطبيق (يزيل الشريط/الفراغ أسفل وأعلى الشاشة)
+        // ===== عرض ملء الشاشة حقيقي (Edge-to-Edge) =====
+        final int appBg = 0xFF0B1014;
         Window w = getWindow();
         w.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        int appBg = 0xFF0B1014;
-        w.setStatusBarColor(appBg);
-        w.setNavigationBarColor(appBg);
+        w.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+                | WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        // الخلفية خلف الأشرطة الشفافة تكون بلون التطبيق فلا يظهر أي شريط أسود
+        w.setBackgroundDrawable(new android.graphics.drawable.ColorDrawable(appBg));
+        w.setStatusBarColor(Color.TRANSPARENT);
+        w.setNavigationBarColor(Color.TRANSPARENT);
+        w.getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
 
         web = new WebView(this);
         web.setBackgroundColor(appBg);
+        web.setFitsSystemWindows(false);
+        // نُبقي محتوى الصفحة داخل المنطقة الآمنة بإضافة حشوة أصلية بمقدار أشرطة النظام،
+        // فتملأ الصفحة كامل الشاشة دون اختباء خلف الأشرطة أو ظهور فراغ أسود
+        web.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+            @Override public android.view.WindowInsets onApplyWindowInsets(View v, android.view.WindowInsets in) {
+                v.setPadding(in.getSystemWindowInsetLeft(), in.getSystemWindowInsetTop(),
+                        in.getSystemWindowInsetRight(), in.getSystemWindowInsetBottom());
+                return in.consumeSystemWindowInsets();
+            }
+        });
         setContentView(web);
 
         WebSettings s = web.getSettings();

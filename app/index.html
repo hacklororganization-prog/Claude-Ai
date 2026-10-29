@@ -610,6 +610,14 @@ html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;bo
 /* زر النزول لآخر رسالة */
 #dn{transition:transform .13s ease}#dn:active{transform:scale(.9)}
 
+/* شريط الحظر أسفل المحادثة */
+#blkbar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;text-align:center;padding:14px 16px calc(14px + env(safe-area-inset-bottom));background:var(--panel);color:var(--mt);font-size:14.5px;line-height:1.5;flex:none;border-top:1px solid var(--ln)}
+#blkbar .bi{display:flex;align-items:center;gap:7px;color:var(--bad);font-weight:600}
+#blkbar .bi .ic{width:18px;height:18px}
+#blkbar button{background:var(--acd);color:var(--acx);padding:9px 18px;border-radius:20px;font-weight:600;font-size:14px}
+#blkbar.by{color:var(--mt)}#blkbar.by .bi{color:var(--bad)}
+#pSt.blk{color:var(--bad)}
+
 #pv{position:fixed;inset:0;z-index:300;background:#000d;display:flex;flex-direction:column;animation:fade .15s ease}
 #pv .pvh{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}
 #pv .pvh b{font-size:16px;font-weight:600}
@@ -783,6 +791,7 @@ html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;bo
     <div class="rt"><i class="rrec"></i><b id="rtm">0:00</b><span class="rwave" id="rwave"></span></div>
     <div class="rr"><button id="rDel" class="rb" aria-label="حذف"><svg class="ic"><use href="#i-trash"/></svg></button><button id="rPau" class="rpill"><svg class="ic"><use href="#i-pause"/></svg><span>إيقاف مؤقت</span></button><button id="rSnd" class="act" aria-label="إرسال"><svg class="ic" style="transform:scaleX(-1)"><use href="#i-send"/></svg></button></div>
    </div>
+   <div id="blkbar" hidden></div>
   </section>
  </main>
 </div>
@@ -1013,7 +1022,10 @@ Object.assign(D, {
   "عرض الصورة": ["View photo", "Voir la photo"], "تغيير الصورة": ["Change photo", "Changer la photo"],
   "حذف الصورة": ["Remove photo", "Supprimer la photo"], "هل تريد حذف صورة ملفك الشخصي؟": ["Remove your profile photo?", "Supprimer votre photo de profil ?"],
   "تم حذف الصورة": ["Photo removed", "Photo supprimée"], "تعذر حذف الصورة": ["Couldn’t remove the photo", "Impossible de supprimer la photo"],
-  "لا توجد صورة": ["No photo", "Aucune photo"], "صورة الملف الشخصي": ["Profile photo", "Photo de profil"]
+  "لا توجد صورة": ["No photo", "Aucune photo"], "صورة الملف الشخصي": ["Profile photo", "Photo de profil"],
+  "لقد حظرت هذا المستخدم": ["You blocked this user", "Vous avez bloqué cet utilisateur"],
+  "لا يمكنك مراسلة هذا المستخدم لأنه قام بحظرك": ["You can’t message this user because they blocked you", "Vous ne pouvez pas écrire à cet utilisateur car il vous a bloqué"],
+  "محظور": ["Blocked", "Bloqué"]
 });
 const PAT = [[/^(\d+) أعضاء$/, ["$1 members", "$1 membres"]], [/^(\d+) جهة اتصال$/, ["$1 contacts", "$1 contacts"]]];
 function T(s){
@@ -1182,7 +1194,7 @@ renderLang();
 /* ============ الدخول ============ */
 let mode = "in";
 const mail = u => u + "@wachat.app";
-const AERR = { "auth/email-already-in-use": "اسم المستخدم مستخدم، اختر اسماً آخر", "auth/invalid-credential": "اسم المستخدم أو كلمة المرور غير صحيحة", "auth/wrong-password": "كلمة المرور غير صحيحة", "auth/user-not-found": "لا يوجد حساب بهذا الاسم", "auth/network-request-failed": "لا يوجد اتصال بالإنترنت", "auth/too-many-requests": "محاولات كثيرة، حاول بعد قليل", "auth/weak-password": "كلمة المرور ضعيفة، اختر كلمة أقوى" };
+const AERR = { "auth/email-already-in-use": "اسم المستخدم مستخدم، اختر اسماً آخر", "auth/invalid-credential": "اسم المستخدم أو كلمة المرور غير صحيحة", "auth/wrong-password": "كلمة المرور غير صحيحة", "auth/user-not-found": "لا يوجد حساب بهذا الاسم", "auth/network-request-failed": "لا يوجد اتصال بالإنترنت", "auth/too-many-requests": "محاولات كثيرة، حاول بعد قليل", "auth/weak-password": "كلمة المرور ضعيفة، اختر كلمة أقوى", "auth/invalid-login-credentials": "اسم المستخدم أو كلمة المرور غير صحيحة", "auth/invalid-email": "اسم المستخدم غير صالح", "auth/user-disabled": "هذا الحساب موقوف", "auth/operation-not-allowed": "تسجيل الدخول غير مفعّل في الخادم", "auth/internal-error": "خطأ مؤقت في الخادم، حاول مرة أخرى" };
 const er = t => { $("err").textContent = T(t); };
 function setMode(m){ mode = m; $("tIn").classList.toggle("on", m === "in"); $("tUp").classList.toggle("on", m === "up"); $("fn").hidden = m === "in"; $("uh").hidden = m === "in"; $("go").textContent = m === "in" ? T("دخول") : T("إنشاء حساب"); er(""); }
 $("tIn").onclick = () => setMode("in"); $("tUp").onclick = () => setMode("up");
@@ -1320,6 +1332,7 @@ function updateHeader(){
   const u = users.get(cur) || {};
   $("pAv").innerHTML = avHTML(cur); $("pName").textContent = u.name || "";
   if(u.isGroup){ $("pSt").textContent = Object.keys(u.members || {}).map(i => i === me ? T("أنت") : ((users.get(i) || {}).name || "")).filter(Boolean).join(T("، ")); $("pSt").className = ""; return; }
+  if(blk.includes(cur)){ $("pSt").textContent = T("محظور"); $("pSt").className = "blk"; return; }
   $("pSt").innerHTML = u.online ? T("متصل الآن") : (u.lastSeen && !u.hideSeen) ? T("آخر ظهور ") + seen(u.lastSeen) : "";
   $("pSt").className = u.online ? "on" : "";
 }
@@ -1452,6 +1465,11 @@ async function handleIn(v, from, rest){
         if(m){ await store.delMsg(v.d); mdata.delete(v.d); await refreshMeta(c); if(cur === c) await reloadCur(); }
       }
     }
+    if(v.k === "block" || v.k === "unblock"){ /* الطرف الآخر أعلمني بحظري أو بإلغائه */
+      if(v.k === "block") blockedBy.add(from); else blockedBy.delete(from);
+      LS.set("blkby", [...blockedBy]);
+      if(cur === from){ applyBlockUI(); updateHeader(); }
+    }
     return true;
   }
   if(typeof v.ts !== "number" || (v.t === "text" ? typeof v.text !== "string" || v.text.length > 4000 : v.t !== "file" || typeof v.name !== "string" || typeof v.size !== "number" || typeof v.mime !== "string")) return true;
@@ -1541,7 +1559,7 @@ async function openChat(uid){
   document.body.classList.add("chat"); $("empty").hidden = true; $("cv").hidden = false; $("msgs").innerHTML = ""; $("msgs").appendChild(encBanner(isG(uid))); lastFrom = null; lastDay = "";
   $("cv").classList.toggle("isg", isG(uid)); $("msgs").classList.toggle("grp", isG(uid));
   if(!chatsData[uid]) touchChat(uid, { ts: Date.now(), last: "" });
-  updateHeader(); renderList();
+  updateHeader(); applyBlockUI(); renderList();
   let list = [];
   try{ list = await loadMsgs(uid); }catch(e){ console.error(e); toast(T("تعذر قراءة المحادثة من الجهاز")); }
   if(cur !== uid) return;
@@ -1562,7 +1580,7 @@ $("msgs").addEventListener("scroll", () => { const b = $("msgs"); if(b.scrollHei
 function closeChat(keepUI){
   rKeep = false; rec && rec.state !== "inactive" && rec.stop(); replyTo = null; $("rpl").hidden = true;
   chatReady = false; pendQ.length = 0; cur = null; $("dn").hidden = true;
-  if(!keepUI){ document.body.classList.remove("chat"); $("cv").hidden = true; $("empty").hidden = false; renderList(); }
+  if(!keepUI){ document.body.classList.remove("chat"); $("cv").hidden = true; $("empty").hidden = false; const bb = $("blkbar"); if(bb) bb.hidden = true; const bar = $("bar"); if(bar) bar.hidden = false; renderList(); }
 }
 $("back").onclick = () => closeChat(false);
 function markRead(){
@@ -1604,6 +1622,8 @@ function addBubble(k, m, quiet){
   if(!mine) markRead(); updateTicks();
 }
 async function send(m){
+  const g0 = isG(cur);
+  if(!g0 && cur && (blk.includes(cur) || blockedBy.has(cur))){ applyBlockUI(); return; } /* لا إرسال عند الحظر */
   if(replyTo){ m = { ...m, re: replyTo }; clearReply(); }
   const to = cur, g = isG(to), id = nid(), ts = Date.now();
   const last = m.t === "file" ? (m.mime.startsWith("audio/") ? "🎤 رسالة صوتية" : m.mime.startsWith("image/") ? "📷 صورة" : m.mime.startsWith("video/") ? "🎥 فيديو" : "📎 " + m.name) : m.text;
@@ -2511,6 +2531,25 @@ $("msg").addEventListener("focus", () => [50, 250, 500].forEach(t => setTimeout(
 if(window.visualViewport) visualViewport.addEventListener("resize", () => { noScroll(); const b = $("msgs"); b.scrollTop = b.scrollHeight; });
 /* ============ صفحات الإعدادات ============ */
 let blk = LS.get("blk", []);
+let blockedBy = new Set(LS.get("blkby", [])); /* من قام بحظري (أعلمني الطرف الآخر) */
+/* يرسل إشعار حظر/إلغاء للطرف الآخر كي يعرف حالته */
+async function sendBlockNotice(to, kind){
+  try{ const id = nid(); await outAdd({ key: id + "|" + to, to, msg: { id, from: me, ts: Date.now(), t: "sys", k: kind } }); kickFlush(0); }catch(e){ console.error(e); }
+}
+/* يحدّث واجهة المحادثة: حقل الكتابة أو شريط الحظر */
+function applyBlockUI(){
+  const bb = $("blkbar"), bar = $("bar");
+  if(!bb) return;
+  if(!cur || isG(cur) || !document.body.classList.contains("chat")){ bb.hidden = true; if(bar) bar.hidden = false; return; }
+  if(blk.includes(cur)){
+    bar && (bar.hidden = true); bb.hidden = false; bb.className = "";
+    bb.innerHTML = `<span class="bi">${ico("ban")} ${T("لقد حظرت هذا المستخدم")}</span><button id="blkUn">${T("إلغاء الحظر")}</button>`;
+    $("blkUn").onclick = () => $("blkBtn").onclick();
+  }else if(blockedBy.has(cur)){
+    bar && (bar.hidden = true); bb.hidden = false; bb.className = "by";
+    bb.innerHTML = `<span class="bi">${ico("ban")} ${T("لا يمكنك مراسلة هذا المستخدم لأنه قام بحظرك")}</span>`;
+  }else{ bb.hidden = true; if(bar) bar.hidden = false; }
+}
 const SPT = { profile: "الملف الشخصي", account: "الحساب", privacy: "الخصوصية", chats: "الدردشات", appearance: "المظهر", notif: "الإشعارات", storage: "التخزين والبيانات", access: "إمكانية الوصول", help: "المساعدة والملاحظات", lang: "لغة التطبيق" };
 function openSp(n){
   document.querySelectorAll(".spb").forEach(p => { p.hidden = p.id !== "p_" + n; });
@@ -2540,9 +2579,9 @@ applyTheme();
 function blkUpdate(){ $("blkBtn").textContent = blk.includes(cur) ? T("إلغاء الحظر") : T("حظر المستخدم"); }
 $("blkBtn").onclick = () => {
   const c = cur; if(!c || isG(c)) return;
-  if(blk.includes(c)){ blk = blk.filter(x => x !== c); toast(T("تم إلغاء الحظر")); }
-  else{ blk.push(c); toast(T("تم الحظر — لن تصلك رسائله ولا مكالماته")); }
-  LS.set("blk", blk); renderBlk();
+  if(blk.includes(c)){ blk = blk.filter(x => x !== c); toast(T("تم إلغاء الحظر")); sendBlockNotice(c, "unblock"); }
+  else{ blk.push(c); toast(T("تم الحظر — لن تصلك رسائله ولا مكالماته")); sendBlockNotice(c, "block"); }
+  LS.set("blk", blk); renderBlk(); applyBlockUI(); updateHeader();
 };
 function renderBlk(){
   blk.forEach(watchUser);

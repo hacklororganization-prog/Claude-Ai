@@ -20,8 +20,14 @@
   "build": {
     "appId": "app.whatsapplite.desktop",
     "productName": "WhatsApp Lite",
-    "directories": { "output": "release", "buildResources": "build" },
-    "files": [ "dist/**/*", "!node_modules/**/*" ],
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "!node_modules/**/*"
+    ],
     "asar": true,
     "electronFuses": {
       "runAsNode": false,
@@ -35,9 +41,22 @@
     "win": {
       "icon": "build/icon.ico",
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
-      ]
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "signtoolOptions": {
+        "sign": "scripts/sign.js"
+      }
     },
     "nsis": {
       "oneClick": false,
@@ -46,6 +65,8 @@
       "shortcutName": "WhatsApp Lite",
       "artifactName": "WhatsApp-Lite-Setup-${version}.exe"
     },
-    "portable": { "artifactName": "WhatsApp-Lite-Portable-${version}.exe" }
+    "portable": {
+      "artifactName": "WhatsApp-Lite-Portable-${version}.exe"
+    }
   }
 }

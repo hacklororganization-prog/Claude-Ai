@@ -573,8 +573,28 @@ html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;bo
 
 /* فقاعات الرسائل وشريط البحث: لمسات أنعم */
 .m{box-shadow:0 1px 2px #00000018}
-.search{transition:box-shadow .16s ease}
+.search{transition:box-shadow .16s ease;box-shadow:inset 0 0 0 1px #ffffff0a}
 .search:focus-within{box-shadow:inset 0 0 0 1.5px var(--ac)}
+
+/* عنوان التطبيق بتدرّج لوني مميّز */
+.top h1{background:linear-gradient(95deg,#2fd877,#17a152);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+
+/* قائمة الدردشات: فواصل أنيقة + حلقة حول الصورة + تمييز غير المقروء */
+.it{position:relative}
+.it::after{content:"";position:absolute;bottom:0;inset-inline-start:84px;inset-inline-end:14px;height:1px;background:var(--ln);opacity:.55}
+.it:last-child::after{opacity:0}
+.it .av{box-shadow:0 0 0 2px var(--bg),0 2px 7px #00000026;transition:box-shadow .16s ease}
+.it.un .av{box-shadow:0 0 0 2.5px var(--ac),0 2px 8px rgba(33,192,99,.3)}
+.it.un{background:linear-gradient(90deg,rgba(33,192,99,.05),transparent 55%)}
+.it.un:hover,.it.un.on{background:var(--srch)}
+.it.un .mid b{font-weight:700}
+
+/* الشرائح (الكل/غير مقروءة) */
+.chip.on{box-shadow:0 4px 12px rgba(33,192,99,.26)}
+
+/* شريط التبويب السفلي: بروز أنعم للقسم النشط */
+.tab.on .pill{box-shadow:0 3px 11px rgba(33,192,99,.22)}
+.tab .pill{transition:background .16s ease,box-shadow .2s ease}
 
 #pv{position:fixed;inset:0;z-index:300;background:#000d;display:flex;flex-direction:column;animation:fade .15s ease}
 #pv .pvh{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;color:#fff}

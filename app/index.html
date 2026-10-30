@@ -625,6 +625,29 @@ html[data-theme=light] #auth .card{background:#fff;border:1px solid #0000000f;bo
 #pv .pvb img{max-width:min(92vw,520px);max-height:80vh;border-radius:12px;box-shadow:0 10px 40px #000a;object-fit:contain}
 #pv .ib{color:#fff}
 .cpa{cursor:pointer}
+
+/* ===== لمسات سطح المكتب: أخفّ وأنعم وأكثر راحة ===== */
+@media(min-width:761px){
+  /* شريط تمرير أنيق ورفيع */
+  #list::-webkit-scrollbar,#msgs::-webkit-scrollbar,.spb::-webkit-scrollbar,#ciB::-webkit-scrollbar{width:10px}
+  #list::-webkit-scrollbar-thumb,#msgs::-webkit-scrollbar-thumb,.spb::-webkit-scrollbar-thumb,#ciB::-webkit-scrollbar-thumb{background:#ffffff1c;border-radius:8px;border:3px solid transparent;background-clip:content-box}
+  #list::-webkit-scrollbar-thumb:hover,#msgs::-webkit-scrollbar-thumb:hover{background:#ffffff33;background-clip:content-box}
+  html[data-theme=light] #list::-webkit-scrollbar-thumb,html[data-theme=light] #msgs::-webkit-scrollbar-thumb{background:#0000001f;background-clip:content-box}
+  /* فاصل خفيف بين القائمة والمحادثة */
+  #pane{border-inline-start:1px solid var(--ln)}
+  /* تمرير سلس ومريح */
+  #list,#msgs{scroll-behavior:smooth;overscroll-behavior:contain}
+  /* إبراز لطيف لعنصر القائمة عند المرور */
+  .it{border-radius:0;transition:background .14s ease}
+  .it:hover{background:var(--srch)}
+  /* مؤشر يد على العناصر القابلة للنقر */
+  .it,.tab,.chip,.ib,.row,.act,.fab,.btn,.lgs button,.tabs button{cursor:pointer}
+}
+/* تحريك فتح التطبيق والمحادثة بسلاسة (يُحترم تقليل الحركة) */
+@media(prefers-reduced-motion:no-preference){
+  #app:not([hidden]){animation:wlFade .22s ease}
+  @keyframes wlFade{from{opacity:.4}to{opacity:1}}
+}
 </style>
 </head>
 <body>
@@ -979,13 +1002,13 @@ import { getAuth, initializeAuth, indexedDBLocalPersistence, browserLocalPersist
 import { getDatabase, ref, push, set, get, update, remove, onChildAdded, onValue, onDisconnect, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDWRLBKr74jw3BP6s-rVOHZt-RqEzXUhuE",
-  authDomain: "my-chat-app-335f0.firebaseapp.com",
-  databaseURL: "https://my-chat-app-335f0-default-rtdb.firebaseio.com",
-  projectId: "my-chat-app-335f0",
-  storageBucket: "my-chat-app-335f0.firebasestorage.app",
-  messagingSenderId: "178156483149",
-  appId: "1:178156483149:web:f035ff31b170763160e204"
+  apiKey: "AIzaSyAAdl_gHmU8IXH9X5Axc_KEQe4mQgjrI9U",
+  authDomain: "chat-7e741.firebaseapp.com",
+  databaseURL: "https://chat-7e741-default-rtdb.firebaseio.com",
+  projectId: "chat-7e741",
+  storageBucket: "chat-7e741.firebasestorage.app",
+  messagingSenderId: "1070657905213",
+  appId: "1:1070657905213:web:755da1c470d3f948ddc054"
 };
 // أضف TURN هنا لضمان الاتصال بين الشبكات الصعبة (مثل تونس ↔ العراق)
 const U = "be2b1e92d8ec3218c7028b53", C = "QJXrdc9XMTWwGgqy";
